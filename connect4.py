@@ -7,7 +7,6 @@ Team Members:
 - Kayla: Win Check (Goal Test)
 - Gabby: AI Logic (Minimax Search Strategy)
 """
-import numpy as np
 
 
 
@@ -26,31 +25,31 @@ Function: Initialize the game board as a 2D array.
 parameters: none
 """"
 def create_board():
-    board = np.zeros((6,7))
-    return board
+    return [[0 for _ in range(COLS)] for _ in range(ROWS)]
 
 """
 Name: drop_piece
 Function: Places a piece on the board at the specified location
 parameters: board (the game board), row (the row index), col (the column index), piece (the piece to be placed, either 1 or 2)"""
 def print_board(board):
-    print(np.flip(board, 0))
+    for row in reversed(board):
+        print(row)
 
 """
 Name: is_valid_location
 Function: Checks if a move is valid by verifying if the top row of the specified column is empty
 parameters: board (the game board), col (the column index to check)"""
-def is_valid_move(board, COLS):
-    return board[5][COLS] == 0
+def is_valid_move(board, col):
+    return board[ROWS - 1][col] == 0
 
 """
 Name: get_next_open_row
 Function: Finds the next open row in a specified column where a piece can be dropped
 parameters: board (the game board), col (the column index to check)
 """"
-def get_next_open_row(board, COLS):
+def get_next_open_row(board, col):
     for r in range(ROWS):
-        if board[r][COLS] == 0:
+        if board[r][col] == 0:
             return r
 
 """
@@ -58,9 +57,9 @@ Name: drop_piece
 Function: Places a piece on the board at the specified location
 parameters: board (the game board), col (the column index), piece (the piece to be placed, either 1 or 2)
 """"
-def drop_piece(board, COLS, piece):
-    row = get_next_open_row(board, COLS)
-    board[row][COLS] = piece
+def drop_piece(board, col, piece):
+    row = get_next_open_row(board, col)
+    board[row][col] = piece
 
 """""
 Name: get_valid_moves
@@ -70,8 +69,8 @@ parameters: board (the game board)
 def get_valid_moves(board):
     valid_moves = []
     for col in range(COLS):
-        if is_valid_move(board, COLS):
-            valid_moves.append(COLS)
+        if is_valid_move(board, col):
+            valid_moves.append(col)
     return valid_moves
 
 """
@@ -79,7 +78,7 @@ Name: copy_board
 Function: Creates a deep copy of the game board to be used in simulations (e.g., for the Minimax algorithm).
 parameters: board (the game board)"""
 def copy_board(board):
-    return np.copy(board)
+    return [row[:] for row in board]
 
 
 # ==========================================================
