@@ -86,15 +86,50 @@ def copy_board(board):
 # ==========================================================
 
 def check_win(board, piece):
-    """
-    Check horizontal, vertical, and both diagonals
-    for 4 in a row.
+    
+    # checking for 4 in a row horizontally
+    for r in range(ROWS):
+        for c in range(COLS -3):
+            if (board[r][c] == piece and
+                board[r][c+1] == piece and
+                board[r][c+2] == piece and
+                board[r][c+3] == piece):
 
-    This represents the GOAL TEST.
-    """
-    pass
+                return True
+    
+    # checking for 4 in a row vertically
+    for c in range(COLS):
+        for r in range(ROWS -3):
+            if (board[r][c] == piece and
+                board[r+1][c] == piece and
+                board[r+2][c] == piece and
+                board[r+3][c] == piece):
 
+                return True
 
+    # checking for 4 in a positive diagnol direction (down right)
+    for r in range(ROWS - 3):
+        for c in range(COLS - 3):
+            if (board[r][c] == piece and
+                board[r+1][c+1] == piece and
+                board[r+2][c+2] == piece and
+                board[r+3][c+3] == piece):
+
+                return True
+
+    # checking for 4 in a negative diagnoal direction (up right)
+    for r in range(3, ROWS):
+        for c in range(COLS - 3):
+            if (board[r][c] == piece and
+                board[r-1][c+1] == piece and
+                board[r-2][c+2] == piece and
+                board[r-3][c+3] == piece):
+
+                return True
+    
+    # if no connecitons found, it returns false 
+    return False 
+    
 # ==========================================================
 # Gabby – AI LOGIC (STATE SPACE SEARCH STRATEGY)
 # ==========================================================
@@ -139,26 +174,60 @@ def main():
     board = create_board()
 
     # Player chooses color
-    # TODO:
-    # Ask user for 'R' or 'Y'
-    # Assign AI the opposite color
+    while True:
+            player_piece = input("choose your color (R/Y): ").upper()
+            if player_piece in ["R", "Y"]:
+                break
+            print("That's a invalid choice. Please enter R or Y")
 
-    # TODO:
     # Initialize turn variable (0 = player, 1 = AI)
+    ai_piece = "Y" if player_piece == "R" else "R"
+    turn = 0        # 0 is the player and 1 is the AI
+    game_over = False
 
-    # TODO:
-    # While game not over:
-    #   - If player turn:
-    #         get input
-    #         validate move
-    #         drop piece
-    #         check for win
-    #   - If AI turn:
-    #         call ai_move()
-    #         drop piece
-    #         check for win
-    #   - Switch turns
+    print_board(board)
+
+    # While the game is running:
+    while not game_over:
+        # If it's the player turn:
+        if turn == 0:
+            try:
+                col = int(input("Your move (0-6): "))
+
+                if is_valid_move(board, col):
+                    drop_piece(board, col, player_piece)
+                    print_board(board)
+
+                    if check_win(board, player_piece):
+                        print("You win!!!")
+                        game_over = True
+                else:
+                    print("That's a invalid move. Please try again")
+                    continue
+            
+            except ValueError:
+                print("Please enter a number that's valid")
+                continue
+
+        # If it's the AI turn:
+        else:
+            print("It's the computer's turn")
+
+            col = ai_move(board, ai_piece, player_piece)
+
+            if is_valid_move(board, col):
+                drop_piece(board, col, ai_piece)
+                print_board(board)
+
+                if check_win(board, ai_piece):
+                    print("The Computer Wins!!!")
+                    game_over = True
+    
+        # Switching turns
+        if not game_over:
+            turn = 1 - turn
 
 
 if __name__ == "__main__":
     main()
+   
