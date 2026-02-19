@@ -175,13 +175,19 @@ def main():
 
     # Player chooses color
     while True:
-            player_piece = input("choose your color (R/Y): ").upper()
-            if player_piece in ["R", "Y"]:
-                break
-            print("That's a invalid choice. Please enter R or Y")
+        choice = input("Choose your color (R/Y): ").upper()
+        if choice == "R":
+            player_piece = 1
+            ai_piece = 2
+            break
+        elif choice == "Y":
+            player_piece = 2
+            ai_piece = 1
+            break
+        else:
+            print("Invalid choice. Enter R or Y.")   
 
     # Initialize turn variable (0 = player, 1 = AI)
-    ai_piece = "Y" if player_piece == "R" else "R"
     turn = 0        # 0 is the player and 1 is the AI
     game_over = False
 
@@ -193,6 +199,10 @@ def main():
         if turn == 0:
             try:
                 col = int(input("Your move (0-6): "))
+
+                if col < 0 or col >= COLS:
+                    print("Column must be between 0 and 6")
+                    continue
 
                 if is_valid_move(board, col):
                     drop_piece(board, col, player_piece)
