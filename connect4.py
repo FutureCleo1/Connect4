@@ -7,7 +7,8 @@ Team Members:
 - Kayla: Win Check (Goal Test)
 - Gabby: AI Logic (Minimax Search Strategy)
 """
-
+import math
+import random
 
 
 # ==========================================================
@@ -23,7 +24,7 @@ COLS = 7
 Name: create_board
 Function: Initialize the game board as a 2D array.
 parameters: none
-""""
+"""
 def create_board():
     return [[0 for _ in range(COLS)] for _ in range(ROWS)]
 
@@ -46,7 +47,7 @@ def is_valid_move(board, col):
 Name: get_next_open_row
 Function: Finds the next open row in a specified column where a piece can be dropped
 parameters: board (the game board), col (the column index to check)
-""""
+"""
 def get_next_open_row(board, col):
     for r in range(ROWS):
         if board[r][col] == 0:
@@ -56,7 +57,7 @@ def get_next_open_row(board, col):
 Name: drop_piece
 Function: Places a piece on the board at the specified location
 parameters: board (the game board), col (the column index), piece (the piece to be placed, either 1 or 2)
-""""
+"""
 def drop_piece(board, col, piece):
     row = get_next_open_row(board, col)
     board[row][col] = piece
@@ -65,7 +66,7 @@ def drop_piece(board, col, piece):
 Name: get_valid_moves
 Function: Returns a list of valid column indices.
 parameters: board (the game board)
-""""
+"""
 def get_valid_moves(board):
     valid_moves = []
     for col in range(COLS):
@@ -140,7 +141,52 @@ def evaluate(board, ai_piece, player_piece):
     Returns a score representing how favorable
     the state is for the AI.
     """
-    pass
+    score = 0
+
+    # Helper function to evaluate 4-cell windows
+    def evaluate_window(window):
+        nonlocal score
+
+        if window.count(ai_piece) == 4:
+            score += 100
+        elif window.count(ai_piece) == 3 and window.count(0) == 1:
+            score += 5
+        elif window.count(ai_piece) == 2 and window.count(0) == 2:
+            score += 2
+
+        if window.count(player_piece) == 3 and window.count(0) == 1:
+            score -= 4
+
+    # Score center column (strategically strong)
+    center_col = COLS // 2
+    center_array = [board[r][center_col] for r in range(ROWS)]
+    score += center_array.count(ai_piece) * 3
+
+    # Horizontal
+    for r in range(ROWS):
+        for c in range(COLS - 3):
+            window = [board[r][c+i] for i in range(4)]
+            evaluate_window(window)
+
+    # Vertical
+    for c in range(COLS):
+        for r in range(ROWS - 3):
+            window = [board[r+i][c] for i in range(4)]
+            evaluate_window(window)
+
+    # Positive diagonal
+    for r in range(ROWS - 3):
+        for c in range(COLS - 3):
+            window = [board[r+i][c+i] for i in range(4)]
+            evaluate_window(window)
+
+    # Negative diagonal
+    for r in range(3, ROWS):
+        for c in range(COLS - 3):
+            window = [board[r-i][c+i] for i in range(4)]
+            evaluate_window(window)
+
+    return score
 
 
 def minimax(board, depth, maximizing, ai_piece, player_piece):
@@ -151,14 +197,57 @@ def minimax(board, depth, maximizing, ai_piece, player_piece):
     - depth: how far to search
     - maximizing: True if AI turn, False if player turn
     """
-    pass
+    valid_moves = get_valid_moves(board)
+
+    # Terminal conditions
+    if check_win(board, ai_piece):
+        return (None, 1000000)
+    if check_win(board, player_piece):
+        return (None, -1000000)
+    if depth == 0 or len(valid_moves) == 0:
+        return (None, evaluate(board, ai_piece, player_piece))
+
+    if maximizing:
+        max_eval = -math.inf
+        best_col = random.choice(valid_moves)
+
+        for col in valid_moves:
+            temp_board = copy_board(board)
+            drop_piece(temp_board, col, ai_piece)
+
+            _, eval_score = minimax(temp_board, depth - 1, False, ai_piece, player_piece)
+
+            if eval_score > max_eval:
+                max_eval = eval_score
+                best_col = col
+
+        return best_col, max_eval
+
+    else:
+        min_eval = math.inf
+        best_col = random.choice(valid_moves)
+
+        for col in valid_moves:
+            temp_board = copy_board(board)
+            drop_piece(temp_board, col, player_piece)
+
+            _, eval_score = minimax(temp_board, depth - 1, True, ai_piece, player_piece)
+
+            if eval_score < min_eval:
+                min_eval = eval_score
+                best_col = col
+
+        return best_col, min_eval
+
 
 
 def ai_move(board, ai_piece, player_piece):
     """
     Determine the AI's move using Minimax.
     """
-    pass
+    depth = 4  
+    col, _ = minimax(board, depth, True, ai_piece, player_piece)
+    return col
 
 
 # ==========================================================
