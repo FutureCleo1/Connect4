@@ -136,14 +136,13 @@ def check_win(board, piece):
 # ==========================================================
 
 def evaluate(board, ai_piece, player_piece):
-    """
-    Heuristic evaluation of the board.
-    Returns a score representing how favorable
-    the state is for the AI.
-    """
+    
+    #Heuristic evaluation of the board.
+    #returns a score representing how favorable the state is for the AI.
+    
     score = 0
 
-    # Helper function to evaluate 4-cell windows
+    # evaluate 4-cell windows
     def evaluate_window(window):
         nonlocal score
 
@@ -157,30 +156,30 @@ def evaluate(board, ai_piece, player_piece):
         if window.count(player_piece) == 3 and window.count(0) == 1:
             score -= 4
 
-    # Score center column (strategically strong)
+    # score center column (strategically strong)
     center_col = COLS // 2
     center_array = [board[r][center_col] for r in range(ROWS)]
     score += center_array.count(ai_piece) * 3
 
-    # Horizontal
+    # horizontal
     for r in range(ROWS):
         for c in range(COLS - 3):
             window = [board[r][c+i] for i in range(4)]
             evaluate_window(window)
 
-    # Vertical
+    # vertical
     for c in range(COLS):
         for r in range(ROWS - 3):
             window = [board[r+i][c] for i in range(4)]
             evaluate_window(window)
 
-    # Positive diagonal
+    # positive diagonal
     for r in range(ROWS - 3):
         for c in range(COLS - 3):
             window = [board[r+i][c+i] for i in range(4)]
             evaluate_window(window)
 
-    # Negative diagonal
+    # negative diagonal
     for r in range(3, ROWS):
         for c in range(COLS - 3):
             window = [board[r-i][c+i] for i in range(4)]
@@ -191,7 +190,7 @@ def evaluate(board, ai_piece, player_piece):
 
 def minimax(board, depth, maximizing, ai_piece, player_piece):
     """
-    Depth-limited Minimax algorithm.
+    depth-limited Minimax algorithm.
 
     - board: current state
     - depth: how far to search
@@ -199,7 +198,7 @@ def minimax(board, depth, maximizing, ai_piece, player_piece):
     """
     valid_moves = get_valid_moves(board)
 
-    # Terminal conditions
+    # terminal conditions
     if check_win(board, ai_piece):
         return (None, 1000000)
     if check_win(board, player_piece):
@@ -242,9 +241,9 @@ def minimax(board, depth, maximizing, ai_piece, player_piece):
 
 
 def ai_move(board, ai_piece, player_piece):
-    """
-    Determine the AI's move using Minimax.
-    """
+    
+    #Determine the AI's move using Minimax.
+    
     depth = 4  
     col, _ = minimax(board, depth, True, ai_piece, player_piece)
     return col
